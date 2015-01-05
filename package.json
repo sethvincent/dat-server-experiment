@@ -7,8 +7,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "",
-    "start": ""
+    "start": "node example.js"
   },
   "dependencies": {
     "JSONStream": "^0.10.0",

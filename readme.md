@@ -7,4 +7,21 @@ changed very little so far aside from updating routes-router and fixing a small 
 - clone this repo
 - `cd` into repo
 - `npm install`
-- `node index.js`
+- `npm start`
+
+## To use as a module:
+
+`npm i --save sethvincent/dat-server-experiment`
+
+_(note that this installs from github because this module isn't on npm)_
+
+Example usage:
+
+```
+var dat = require('dat')('./db', function () {
+  var server = require('dat-server-experiment')(dat);
+  server.listen(3333, function () {
+    console.log('dat server listening at 127.0.0.1:3333')
+  })
+})
+```
