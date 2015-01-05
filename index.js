@@ -7,7 +7,3 @@ var dat = require('dat')('./db', function () {
     console.log('dat server listening at 127.0.0.1:3333')
   })
 })
-
-
-
-
