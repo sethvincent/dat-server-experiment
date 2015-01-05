@@ -81,8 +81,8 @@ RestHandler.prototype.logout = function(req, res) {
 RestHandler.prototype.blob = function(req, res, opts) {
   var self = this
   if (req.method === 'GET') {
-    var key = opts.key
-    var blob = self.dat.createBlobReadStream(opts.key, opts.filename, opts)
+    var key = opts.params.key
+    var blob = self.dat.createBlobReadStream(opts.params.key, opts.filename, opts)
     blob.on('error', function(err) {
       return self.error(res, 404, {"error": "Not Found"})
     })
@@ -94,7 +94,7 @@ RestHandler.prototype.blob = function(req, res, opts) {
     var reqUrl = url.parse(req.url, true)
     var qs = reqUrl.query
     var doc = {
-      key: opts.key,
+      key: opts.params.key,
       version: qs.version
     }
     self.auth.handle(req, res, function(err) {
@@ -121,7 +121,7 @@ RestHandler.prototype.blob = function(req, res, opts) {
 RestHandler.prototype.blobs = function(req, res, opts) {
   var self = this
   if (req.method === 'HEAD') {
-    var key = opts.key
+    var key = opts.params.key
     var blob = self.dat.blobs.backend.exists(opts, function(err, exists) {
       res.statusCode = exists ? 200 : 404
       res.setHeader('content-length', 0)
@@ -308,7 +308,7 @@ RestHandler.prototype.json = function(res, json) {
 
 RestHandler.prototype.get = function(req, res, opts) {
   var self = this
-  this.dat.get(opts.key, url.parse(req.url, true).query || {}, function(err, json) {
+  this.dat.get(opts.params.key, url.parse(req.url, true).query || {}, function(err, json) {
     if (err && err.message === 'range not found') return self.error(res, 404, {error: "Not Found"})
     if (err) return self.error(res, 500, err.message)
     if (json === null) return self.error(res, 404, {error: "Not Found"})
@@ -334,7 +334,7 @@ RestHandler.prototype.post = function(req, res) {
 
 RestHandler.prototype.delete = function(req, res, opts) {
   var self = this
-  self.dat.delete(opts.key, function(err, stored) {
+  self.dat.delete(opts.params.key, function(err, stored) {
     if (err) return self.error(res, 500, err)
     self.json(res, {deleted: true})
   })
@@ -373,7 +373,7 @@ RestHandler.prototype.bulk = function(req, res) {
 RestHandler.prototype.document = function(req, res, opts) {
   var self = this
   if (req.method === "GET" || req.method === "HEAD") {
-    if (opts.key) return this.get(req, res, opts)
+    if (opts.params.key) return this.get(req, res, opts)
     else return this.exportData(req, res)
   }
   this.auth.handle(req, res, function(err) {
