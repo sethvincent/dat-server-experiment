@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "JSONStream": "^0.10.0",
-    "accountdown": "^3.0.0",
-    "accountdown-basic": "^1.0.0",
     "basic": "0.0.3",
     "concat-stream": "^1.4.7",
     "cookie-auth": "^2.2.0",
