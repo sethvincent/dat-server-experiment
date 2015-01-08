@@ -1,21 +1,71 @@
+var debug = require('debug')('dat-server')
+
 var Dat = require('dat')
+var getPort = require('dat/lib/get-port.js')
+var connections = require('connections')
 
-module.exports = function (dir, opts, onReady) {
-  // if dir is actuall a dat instance
-  if (dir.exists) return createServer(dir)
+var restHandler = require('./components/handler')
+var restRouter = require('./components/router')
+var restServer = require('./components/server')
 
-  // else we're passing options to create a dat
-  else {
-    var dat = Dat(dir, opts, onReady)
-    return createServer(dat)
+module.exports = DatServer
+
+function DatServer (dir, opts, onReady) {
+  if (!(this instanceof DatServer)) return new DatServer(dir, opts, onReady)
+    
+  // there's probly a better way of determining if an object is a dat:
+  if (dir.exists) this.dat = dir
+  else this.dat = Dat(dir, opts, onReady)
+}
+
+DatServer.prototype.listen = function(port, options, cb) {
+  if (typeof port === 'function') return this.listen(0, null, port) // dat.listen(cb)
+  if (typeof port === 'object' && port) return this.listen(0, port, options) // dat.listen(options, cb)
+  if (typeof options === 'function') return this.listen(port, null, options) // dat.listen(port, cb)
+  if (!options) options = {}
+  if (!cb) cb = noop
+  
+  var self = this
+  var dat = this.dat
+  
+  if (process.env.PORT && !port) port = parseInt(process.env.PORT)
+  
+  // if already listening then return early w/ success callback
+  if (this._server && this._server.address()) {
+    setImmediate(function() {
+      cb(null, self.address().port)
+    })
+    return
   }
+  
+  this.dat._ensureExists(options, function exists(err) {
+    if (err) return cb(false, err)
+    var handler = restHandler(self.dat)
+    var router = restRouter(handler)
+    self._server = restServer(router)
+    
+    // track open connections so we can gracefully close later
+    dat._connections = connections(self._server)
+
+    // hook up stats collection
+    dat.stats.http(self._server)
+    
+    // runs import + listen hooks if they exist
+    dat.startImport()
+    dat.listenHook(dat, listen)
+    
+    function listen(err) {
+      if (err) return cb(err)
+      var startingPort = port || dat.options.port
+      getPort(startingPort, dat.paths().port, function(err, port) {
+        if (err) return cb(err)
+        debug('listen', { hostname: dat.options.hostname, port: port })
+        
+        self._server.listen(port, dat.options.hostname, function(err) {
+          if (err) return cb(err)
+          cb(null, port)
+        })
+      })
+    }
+  })
 }
-
-function createServer (dat) {
-  var handler = require('./components/handler')(dat)
-  var router = require('./components/router')(handler)
-  var server = require('./components/server')(router)
-
-  return server
-}
-
