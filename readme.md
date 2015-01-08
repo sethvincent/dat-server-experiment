@@ -15,13 +15,31 @@ changed very little so far aside from updating routes-router and fixing a small 
 
 _(note that this installs from github because this module isn't on npm)_
 
-Example usage:
+## Example usage:
 
+Pass a dat instance:
+
+```js
+var Dat = require('dat')
+var createDatServer = require('dat-server-experiment')
+
+var dat = Dat('./db', function () {
+  var server = createDatServer(dat)
+  
+  server.listen(3333, function() {
+    console.log('Listening at 127.0.0.1:3333')
+  })
+})
 ```
-var dat = require('dat')('./db', function () {
-  var server = require('dat-server-experiment')(dat);
+
+Pass a path to dat that exists on the filesystem:
+
+```js
+var createDatServer = require('dat-server-experiment')
+
+var server = createDatServer('./db', function () {
   server.listen(3333, function () {
-    console.log('dat server listening at 127.0.0.1:3333')
+    console.log('Listening at 127.0.0.1:3333')
   })
 })
 ```
