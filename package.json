@@ -32,6 +32,7 @@
     "pump": "^1.0.0",
     "rest-format-opts": "^1.0.0",
     "routes-router": "^4.1.2",
+    "stdout-stream": "^1.3.0",
     "through2": "^0.6.3"
   },
   "devDependencies": {
