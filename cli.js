@@ -1,8 +1,11 @@
+#! /usr/bin/env node
+
 var minimist = require('minimist')
 var debug = require('debug')('dat-server.cli')
 var EOL = require('os').EOL
 var exit = require('exit')
 var Dat = require('dat')
+var datServer = require('./index')
 
 var onerror = function(err) {
   console.error('Error: ' + err.message)
@@ -69,7 +72,10 @@ var dat = Dat(dir, {init: false}, function(err) {
   }
 
   if (!dat.db && !noDat) return onerror(new Error('There is no dat here'))
-  if (first !== 'listen' && !dat.rpcClient) return dat.listen(argv.port, argv, execCommand)
+  if (first !== 'listen' && !dat.rpcClient) {
+    var server = datServer(dat)
+    return server.listen(argv.port, argv, execCommand)
+  }
   execCommand()
 })
 
