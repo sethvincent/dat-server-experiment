@@ -69,3 +69,11 @@ DatServer.prototype.listen = function(port, options, cb) {
     }
   })
 }
+
+DatServer.prototype.running = function () {
+  return this._server.address() !== null
+}
+
+DatServer.prototype.close = function () {
+  if (this._server) this._server.close()
+}
