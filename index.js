@@ -2,7 +2,7 @@ var debug = require('debug')('dat-server')
 
 var fs = require('fs')
 var Dat = require('dat')
-var getPort = require('dat/lib/get-port.js')
+var getPort = require('lib/get-port.js')
 var connections = require('connections')
 var stdout = require('stdout-stream')
 
