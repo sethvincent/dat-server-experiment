@@ -82,13 +82,14 @@ DatServer.prototype.close = function () {
     stdout.end()
 
     // if there aren't any active connections then we can close the server
-    if (self.dat._connections.sockets.length === 0) self.dat.close()
+    if (self.dat._connections.sockets.length === 0) {
+      self._server.close()
+    }
 
     // otherwise wait for the current connections to close
     self.dat._connections.on('idle', function() {
       debug('dat close due to idle')
-      self.dat.close()
+      self._server.close()
     })
-    self._server.close()
   }
 }
