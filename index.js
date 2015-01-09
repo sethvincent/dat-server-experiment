@@ -45,6 +45,7 @@ DatServer.prototype.listen = function(port, options, cb) {
     var handler = restHandler(self.dat)
     var router = restRouter(handler)
     self._server = restServer(router)
+    self.dat._server = self._server
 
     // track open connections so we can gracefully close later
     self.dat._connections = connections(self._server)
@@ -76,32 +77,3 @@ DatServer.prototype.running = function () {
   return this._server && this._server.address() !== null
 }
 
-DatServer.prototype.close = function () {
-  var self = this
-  if (self._server) {
-    rmPort()
-
-    // since the server process can't exit yet we must manually close stdout
-    stdout.end()
-
-    // if there aren't any active connections then we can close the server
-    if (self.dat._connections.sockets.length === 0) {
-      self.dat._connections.destroy()
-      self._server.close()
-    }
-
-    // otherwise wait for the current connections to close
-    self.dat._connections.on('idle', function() {
-      debug('dat close due to idle')
-      self.dat._connections.destroy()
-      self._server.close()
-      rmPort()
-    })
-
-    function rmPort() {
-      fs.unlink(self.dat.paths().port, function(err) {
-        // ignore err
-      })
-    }
-  }
-}

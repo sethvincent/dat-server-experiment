@@ -19,6 +19,5 @@ var createDatServer = require('./')
 var server = createDatServer('./db', function () {
   server.listen(3333, function () {
     console.log('Listening at 127.0.0.1:3333')
-    server.close()
   })
 })
