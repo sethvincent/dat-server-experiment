@@ -78,18 +78,30 @@ DatServer.prototype.running = function () {
 DatServer.prototype.close = function () {
   var self = this
   if (self._server) {
+    rmPort()
+
     // since the server process can't exit yet we must manually close stdout
     stdout.end()
 
     // if there aren't any active connections then we can close the server
     if (self.dat._connections.sockets.length === 0) {
+      self.dat._connections.destroy()
       self._server.close()
     }
 
     // otherwise wait for the current connections to close
     self.dat._connections.on('idle', function() {
       debug('dat close due to idle')
+      self.dat._connections.destroy()
       self._server.close()
+      rmPort()
     })
+
+    function rmPort() {
+      fs.unlink(self.dat.paths().port, function(err) {
+        // ignore err
+        cb()
+      })
+    }
   }
 }
