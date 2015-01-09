@@ -1,5 +1,6 @@
 var debug = require('debug')('dat-server')
 
+var fs = require('fs')
 var Dat = require('dat')
 var getPort = require('dat/lib/get-port.js')
 var connections = require('connections')
@@ -100,7 +101,6 @@ DatServer.prototype.close = function () {
     function rmPort() {
       fs.unlink(self.dat.paths().port, function(err) {
         // ignore err
-        cb()
       })
     }
   }
